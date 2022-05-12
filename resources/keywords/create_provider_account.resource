@@ -6,7 +6,7 @@ Library     ../../utils/scripts/util.py
 
 
 *** Variables ***
-${PROJECT}          dedicated-admin
+${PROJECT}          openshift-config
 ${provaccname}      ${EMPTY}
 
 
@@ -45,7 +45,7 @@ User Filters Project redhat-dbaas-operator On Project DropDown And Navigates To 
 User Enters Provider Account Name And Selects Database Provider ${dbprovider}
     Wait Until Page Contains Element    ${drpDwnDBProvider}    timeout=20s
     ${paname}=    Get Provider Account Name    ${dbprovider}
-    Set Test Variable    ${provaccname}    ${paname}
+    Set Suite Variable    ${provaccname}    ${paname}
     Input Text    ${txtBxName}    ${provaccname}
     Select From List By Label    ${drpDwnDBProvider}    ${dbprovider}
 
@@ -59,9 +59,19 @@ User Enters Data To Create MongoDB Provider Account
     Element Should Be Visible    ${btnCreateEnabled}
     Click Element    ${btnCreateEnabled}
 
+User Enters Data To Create CockroachDB Provider Account
+    [Arguments]    ${isv}=CockroachDB Cloud
+    set Suite Variable    ${isv}
+    User Enters Provider Account Name And Selects Database Provider
+    Wait Until Page Contains Element    ${txtBxCockroachAPI}    timeout=10s
+    Input Text    ${txtBxCockroachAPI}    ${COCKROACHDB.API_KEY}
+    Element Should Be Visible    ${btnCreateEnabled}
+    Click Element    ${btnCreateEnabled}
+
 Provider Account Creation Successful And Application Navigates To Success Screen
     Application Navigates To Provider Account Creation Success Screen
     Provider Account Creation Success
+    Provider Account Available on Database Access Screen
 
 Application Navigates To Provider Account Creation Success Screen
     Wait Until Page Contains Element    ${lblDBInstSuccess}    timeout=10s
@@ -76,3 +86,14 @@ Provider Account Creation Success
     ...    Wait Until Page Contains Element
     ...    ${elemDbaasInvStatusUpd}
     ...    timeout=10s
+
+Provider Account Available on Database Access Screen
+    User Navigates To Database Access Under Data Services
+    Wait Until Page Contains Element    ${titleDatabaseAccess}
+    ${elemProvAccUpd}=    Replace String    ${elemProvAcc}    <<paname>>    ${provaccname}
+    ${updProvAcc}=    Replace String    ${elemDBProvider}    <<paname>>    ${provaccname}
+    ${isvName}=    Fetch From Left    ${isv}    ${SPACE}
+    Log To Console    ${isvName}
+    ${elemDBProviderUpd}=    Replace String    ${updProvAcc}    <<isvname>>    ${isvName}
+    Element Should Be Visible    ${elemProvAccUpd}
+    Element Should Be Visible    ${elemDBProviderUpd}

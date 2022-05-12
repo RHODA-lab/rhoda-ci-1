@@ -6,6 +6,7 @@ Resource    ../object_repo/login_obj.resource
 
 *** Keywords ***
 The Browser Is On Openshift Home Screen
+    Set Selenium Implicit Wait    5s
     Open Browser    ${OCP_CONSOLE_URL}    browser=${BROWSER.NAME}    options=${BROWSER.OPTIONS}
     Select Login Authentication Type    ${OCP_ADMIN_USER.AUTH_TYPE}
     Login To Openshift
