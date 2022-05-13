@@ -14,19 +14,27 @@ using QE tiered testing.
      cp test-variables.yaml.example test-variables.yaml
      ```
 
-  1. Edit the test variables file to include information required for this test run.
+  2. Edit the test variables file to include information required for this test run.
      You will need to add info required for test execution:
 
-     * Openshift Console URL
+     * Openshift Console URL (Should be an OCP Cluster or a Cluster with default Namespace "_openshift-dbaas-operator_")
      * Test user credentials
      * Browser webdriver to use for testing
 
 
-  1. Run this script that will create the virtual environment, install the required packages and kickoff the Robot test suite
+  3. Run this script which will create the virtual environment, install the required packages and kickoff the Robot test suite
     ```bash
     sh run_robot_test.sh
     ```
-    This script is a wrapper for creating the python virtual environment and running the Robot Framework CLI.  You can run any of the test cases by creating the python virual environment, install the packages in requirements.txt and running the `robot` command directly
+    This script is a wrapper for creating the python virtual environment and running the Robot Framework CLI.  You can run any of the test cases by creating the python virtual environment, install the packages in requirements.txt and running the `robot` command directly.
+    To understand the various possible inputs to run_robot_test.sh, run it with _-h_ flag
+    ```
+    sh run_robot_test.sh -h
+    ```
+
+
+##### NOTE:
+The code on this branch has been aligned to work with an OCP Cluster or a cluster whose default Namespace for RHODA Operator is _openshift-dbaas-operator_. Make sure you are providing appropriate Console URL to avoid false failures
 
 # Contributing
 
