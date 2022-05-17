@@ -61,9 +61,9 @@ User Enters Data To Create MongoDB Provider Account
     Set Suite Variable    ${isv}
     User Enters Provider Account Name And Selects Database Provider
     Wait Until Page Contains Element    ${txtBxMongoDBOrgID}    timeout=10s
-    Input Text    ${txtBxMongoDBOrgID}    ${MONGO.ORG_ID}
-    Input Text    ${txtBxMongoDBPubAPI}    ${MONGO.PUB_KEY}
-    Input Text    ${txtBxMongoDBPrivAPI}    ${MONGO.PRI_KEY}
+    Input Text    ${txtBxMongoDBOrgID}    ${MONGODB.ORG_ID}
+    Input Text    ${txtBxMongoDBPubAPI}    ${MONGODB.PUB_KEY}
+    Input Text    ${txtBxMongoDBPrivAPI}    ${MONGODB.PRI_KEY}
     Element Should Be Visible    ${btnCreateEnabled}
     Click Element    ${btnCreateEnabled}
 
@@ -83,8 +83,8 @@ User Enters Data To Create CrunchyDB Provider Account
     Set Suite Variable    ${isv}
     User Enters Provider Account Name And Selects Database Provider
     Wait Until Page Contains Element    ${txtBxCrunchyPubAPI}    timeout=10s
-    Input Text    ${txtBxCrunchyPubAPI}    ${CRUNCHY.PUB_KEY}
-    Input Text    ${txtBxCrunchyPrivAPI}    ${CRUNCHY.PRI_KEY}
+    Input Text    ${txtBxCrunchyPubAPI}    ${CRUNCHYDB.PUB_KEY}
+    Input Text    ${txtBxCrunchyPrivAPI}    ${CRUNCHYDB.PRI_KEY}
     Element Should Be Visible    ${btnCreateEnabled}
     Click Element    ${btnCreateEnabled}
 
@@ -98,10 +98,27 @@ User Enters Invalid Data To Create CrunchyDB Provider Account
     Element Should Be Visible    ${btnCreateEnabled}
     Click Element    ${btnCreateEnabled}
 
+User Enters Data To Create CockroachDB Provider Account
+    [Arguments]    ${isv}=CockroachDB Cloud
+    set Suite Variable    ${isv}
+    User Enters Provider Account Name And Selects Database Provider
+    Wait Until Page Contains Element    ${txtBxCockroachAPI}    timeout=10s
+    Input Text    ${txtBxCockroachAPI}    ${COCKROACHDB.API_KEY}
+    Element Should Be Visible    ${btnCreateEnabled}
+    Click Element    ${btnCreateEnabled}
+
+User Enters Invalid Data To Create CockroachDB Provider Account
+    [Arguments]    ${isv}=CockroachDB Cloud
+    Set Suite Variable    ${isv}
+    User Enters Provider Account Name And Selects Database Provider    True
+    Wait Until Page Contains Element    ${txtBxCockroachAPI}    timeout=10s
+    Input Text    ${txtBxCockroachAPI}    ${INV_PRI_KEY}
+    Element Should Be Visible    ${btnCreateEnabled}
+    Click Element    ${btnCreateEnabled}
+
 Provider Account Creation Success
     Application Navigates To Provider Account Creation Success Screen
     Provider Account Creation Success Page
->>>>>>> master
     Provider Account Available on Database Access Screen
 
 Application Navigates To Provider Account Creation Success Screen
@@ -113,24 +130,6 @@ Provider Account Creation Success Page
     Wait Until Page Contains Element    ${titleDbaasInventories}    timeout=10s
     Filter ${provaccname} On DBaaS Inventory
     ${elemDbaasInvStatusUpd}=    Replace String    ${elemDbaasInvStatus}    <<paname>>    ${provaccname}
-
-    Wait Until Keyword Succeeds
-    ...    5x
-    ...    1s
-    ...    Wait Until Page Contains Element
-    ...    ${elemDbaasInvStatusUpd}
-    ...    timeout=10s
-
-Provider Account Available on Database Access Screen
-    User Navigates To Database Access Under Data Services
-    Wait Until Page Contains Element    ${titleDatabaseAccess}
-    ${elemProvAccUpd}=    Replace String    ${elemProvAcc}    <<paname>>    ${provaccname}
-    ${updProvAcc}=    Replace String    ${elemDBProvider}    <<paname>>    ${provaccname}
-    ${isvName}=    Fetch From Left    ${isv}    ${SPACE}
-    Log To Console    ${isvName}
-    ${elemDBProviderUpd}=    Replace String    ${updProvAcc}    <<isvname>>    ${isvName}
-    Element Should Be Visible    ${elemProvAccUpd}
-    Element Should Be Visible    ${elemDBProviderUpd}
     Wait Until Keyword Succeeds     10x     2s      Wait Until Page Contains Element    ${elemDbaasInvStatusUpd}
     Set Suite Variable    ${provaccname}
 
@@ -184,7 +183,7 @@ Create ${databaseProvider} Provider Account
     ...  ELSE IF    "Crunchy" in """${databaseProvider}"""
     ...    User Enters Data To Create CrunchyDB Provider Account
     ...  ELSE IF    "Cockroach" in """${databaseProvider}"""
-    ...    User Enters Data To Create CrunchyDB Provider Account
+    ...    User Enters Data To Create CockroachDB Provider Account
     Provider Account Creation Success
 
 
