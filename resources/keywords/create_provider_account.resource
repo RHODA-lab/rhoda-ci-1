@@ -1,6 +1,6 @@
 *** Settings ***
 Resource    ../keywords/operators.resource
-Resource    ../object_repo/create_dbaasinventory.resource
+Resource    ../object_repo/create_dbaasinventory_obj.resource
 Resource    ../object_repo/database_access_obj.resource
 Resource    ../object_repo/installed_operators_obj.resource
 Library     ../../utils/scripts/util.py
@@ -9,15 +9,15 @@ Library     ../../utils/scripts/dbaas_connection.py
 
 
 *** Variables ***
-${provaccname}      ${EMPTY}
-${INV_ORG_ID}       invalid_org_id
-${INV_PUB_KEY}      invalid_pub_key
-${INV_PRI_KEY}      invalid_private_key
+${provaccname}        ${EMPTY}
+${INV_ORG_ID}         invalid_org_id
+${INV_PUB_KEY}        invalid_pub_key
+${INV_PRI_KEY}        invalid_private_key
 
 *** Keywords ***
 User Selects Invalid Namespace For Provider Account Creation And Navigates To Database Access Page
     User Navigates To Installed Operators Under Operators
-    User Filters dedicated-admin Namespace On Project Dropdown
+    User Filters default Namespace On Project Dropdown
     User Navigates To Database Access Page
 
 User Navigates To Create Provider Account Screen From Database Access Page
@@ -26,6 +26,10 @@ User Navigates To Create Provider Account Screen From Database Access Page
     ...    Select Database Provider Account From Create Button DropDown
     ...    ELSE
     ...    Click Element    ${btnCreateProviderAcc}
+    Sleep    8s
+    Comment    [known issue] Auto Page Refresh - Blind Sleep provided for mitigation
+    ...        Will be replaced with intelligent wait if issue persists in near future
+    ...        Will be removed once issue if fixed
 
 Select ${option} From ${menu} Button DropDown
     ${btnMenuDropDownUpd}=    Replace String    ${btnMenuDropDown}    <<menu>>    ${menu}
@@ -97,6 +101,24 @@ User Enters Invalid Data To Create CrunchyDB Provider Account
     Element Should Be Visible    ${btnCreateEnabled}
     Click Element    ${btnCreateEnabled}
 
+User Enters Data To Create CockroachDB Provider Account
+    [Arguments]    ${isv}=CockroachDB Cloud
+    set Suite Variable    ${isv}
+    User Enters Provider Account Name And Selects Database Provider
+    Wait Until Page Contains Element    ${txtBxCockroachAPI}    timeout=10s
+    Input Text    ${txtBxCockroachAPI}    ${COCKROACH.API_KEY}
+    Element Should Be Visible    ${btnCreateEnabled}
+    Click Element    ${btnCreateEnabled}
+
+User Enters Invalid Data To Create CockroachDB Provider Account
+    [Arguments]    ${isv}=CockroachDB Cloud
+    Set Suite Variable    ${isv}
+    User Enters Provider Account Name And Selects Database Provider    True
+    Wait Until Page Contains Element    ${txtBxCockroachAPI}    timeout=10s
+    Input Text    ${txtBxCockroachAPI}    ${INV_PRI_KEY}
+    Element Should Be Visible    ${btnCreateEnabled}
+    Click Element    ${btnCreateEnabled}
+
 Provider Account Creation Success
     Application Navigates To Provider Account Creation Success Screen
     Provider Account Creation Success Page
@@ -108,7 +130,7 @@ Application Navigates To Provider Account Creation Success Screen
 
 Provider Account Creation Success Page
     Click Element    ${btnViewProviderAcc}
-    Wait Until Page Contains Element    ${titleDbaasInvertories}    timeout=10s
+    Wait Until Page Contains Element    ${titleDbaasInventories}    timeout=10s
     Filter ${provaccname} On DBaaS Inventory
     ${elemDbaasInvStatusUpd}=    Replace String    ${elemDbaasInvStatus}    <<paname>>    ${provaccname}
     Wait Until Keyword Succeeds     10x     2s      Wait Until Page Contains Element    ${elemDbaasInvStatusUpd}
@@ -120,7 +142,6 @@ Provider Account Available on Database Access Screen
     ${elemProvAccUpd}=    Replace String    ${elemProvAcc}    <<paname>>    ${provaccname}
     ${updProvAcc}=    Replace String    ${elemDBProvider}    <<paname>>    ${provaccname}
     ${isvName}=    Fetch From Left    ${isv}    ${SPACE}
-    Log To Console    ${isvName}
     ${elemDBProviderUpd}=    Replace String    ${updProvAcc}    <<isvname>>    ${isvName}
     Element Should Be Visible    ${elemProvAccUpd}
     Element Should Be Visible    ${elemDBProviderUpd}
@@ -136,26 +157,38 @@ Provider Account Creation Failure Screen
     Page Should Contain Button    ${btnEditProvAcc}
 
 User Navigates To DBaaS Inventories Screen
+    [Arguments]    ${PROJECT}=openshift-dbaas-operator
     User Navigates To Installed Operators Under Operators
-    User Filters openshift-dbaas-operator Namespace On Project Dropdown
+    User Filters ${PROJECT} Namespace On Project Dropdown
     Wait Until Page Contains Element    ${elemDbaasStatus}    timeout=15s
     Page Should Contain Element    ${lnkProvAcc}
     Click Element    ${lnkProvAcc}
-    Wait Until Page Contains Element    ${titleDbaasInvertories}    timeout=10s
+    Wait Until Page Contains Element    ${titleDbaasInventories}    timeout=10s
 
 Check Status Of Invalid Provider Account
-    Wait Until Page Contains Element    ${titleDbaasInvertories}    timeout=10s
+    Wait Until Page Contains Element    ${titleDbaasInventories}    timeout=10s
     Filter ${provaccname} On DBaaS Inventory
     ${elemDbaasInvStatusUpd}=    Replace String    ${elemDbaasInvStatus}    <<paname>>    ${provaccname}
     Page Should Not Contain Element    ${elemDbaasInvStatusUpd}
 
-User Creates ${databaseProvider} Provider Account
+User Creates Valid ${databaseProvider} Provider Account
     Run Keyword If    "${provaccname}" == "${EMPTY}"
-    ...    Create ${databaseProvider} Provider Account
+    ...    Create Valid ${databaseProvider} Provider Account
     ...  ELSE
-    ...    Log To Console    Provider Account ${provaccname} Exists
+    ...    Log     Provider Account ${provaccname} Exists    console=yes
 
-Create ${databaseProvider} Provider Account
+User Creates Invalid ${databaseProvider} Provider Account
+    User Filters Project openshift-dbaas-operator On Project DropDown And Navigates To Database Access Page
+    User Navigates To Create Provider Account Screen From Database Access Page
+    Run Keyword If    "Mongo" in """${databaseProvider}"""
+    ...    User Enters Invalid Data To Create MongoDB Provider Account
+    ...  ELSE IF    "Crunchy" in """${databaseProvider}"""
+    ...    User Enters Invalid Data To Create CrunchyDB Provider Account
+    ...  ELSE IF    "Cockroach" in """${databaseProvider}"""
+    ...    User Enters Invalid Data To Create CockroachDB Provider Account
+    Provider Account Creation Failure
+
+Create Valid ${databaseProvider} Provider Account
     User Filters Project openshift-dbaas-operator On Project DropDown And Navigates To Database Access Page
     User Navigates To Create Provider Account Screen From Database Access Page
     Run Keyword If    "Mongo" in """${databaseProvider}"""
@@ -163,7 +196,7 @@ Create ${databaseProvider} Provider Account
     ...  ELSE IF    "Crunchy" in """${databaseProvider}"""
     ...    User Enters Data To Create CrunchyDB Provider Account
     ...  ELSE IF    "Cockroach" in """${databaseProvider}"""
-    ...    User Enters Data To Create CrunchyDB Provider Account
+    ...    User Enters Data To Create CockroachDB Provider Account
     Provider Account Creation Success
 
 

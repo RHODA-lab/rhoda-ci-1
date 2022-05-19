@@ -3,24 +3,29 @@ Documentation       Test to verify installed operators screen for RHODA
 Metadata            Version    0.0.1
 
 Library             SeleniumLibrary
-Resource            ../resources/keywords/navigation.resource
-Resource            ../resources/keywords/operators.resource
+Resource            ../resources/keywords/create_provider_account.resource
 
 Suite Setup         Set Library Search Order    SeleniumLibrary
 Suite Teardown      Tear Down The Test Suite
 Test Setup          Given The Browser Is On Openshift Home Screen
-Test Teardown       Close Browser
+#Test Teardown       Close Browser
 
 
 *** Test Cases ***
-Scenario: Redhat Database Operator Installed On Operator Hub
+Scenario: Openshift Database Operator Installed On Operator Hub
     [Tags]    smoke
     When User Navigates To OperatorHub Under Operators
     And User Searches Openshift Database Access Operator On RHODA Installed Cluster
     Then The Operator Tile Loads With Installed Status
 
-Scenario: Redhat Dbaas Operator Namespace Created For RHODA Installation
+Scenario: Openshift Dbaas Operator Namespace Created For RHODA Installation
     [Tags]    smoke
     When User Navigates To Installed Operators Under Operators
     And User Filters openshift-dbaas-operator Namespace On Project Dropdown
     Then Openshift Database Access Operator Filtered With Succeeded Status
+
+Scenario: Error Message To Select Valid Namespace For Provider Account Creation
+    [Tags]    smoke    RHOD-45
+    When User Selects Invalid Namespace For Provider Account Creation And Navigates To Database Access Page
+    And User Navigates To Create Provider Account Screen From Database Access Page
+    Then Application Navigate To Create Provider Account Page And Error Message Displayed For Invalid Namespace

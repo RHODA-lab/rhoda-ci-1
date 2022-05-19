@@ -15,11 +15,11 @@ User Filters ${projectName} Namespace On Project Dropdown
     Click Element    ${drpDwnProjectSelect}
     Element Should Be Visible    ${txtBxProjectSelect}
     Input Text    ${txtBxProjectSelect}    ${projectName}
-    ${btnProjectSelect}=    Replace String    ${btnProjectSelect}    <<project>>    ${projectName}
-    Wait Until Page Contains Element    ${btnProjectSelect}    timeout=15s
-    Click Element    ${btnProjectSelect}
-    ${lblProjectSelect}=    Replace String    ${lblProjectSelect}    <<project>>    ${projectName}
-    Wait Until Page Contains Element    ${lblProjectSelect}    timeout=15s
+    ${btnProjectSelectUpd}=    Replace String    ${btnProjectSelect}    <<project>>    ${projectName}
+    Wait Until Page Contains Element    ${btnProjectSelectUpd}    timeout=15s
+    Click Element    ${btnProjectSelectUpd}
+    ${lblProjectSelectUpd}=    Replace String    ${lblProjectSelect}    <<project>>    ${projectName}
+    Wait Until Page Contains Element    ${lblProjectSelectUpd}    timeout=15s
 
 User Filters ${operatorName} Operator On Filter TextBox
     Wait Until Page Contains Element    ${txtBxFilter}    timeout=15s
