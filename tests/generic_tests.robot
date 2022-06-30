@@ -12,9 +12,10 @@ Test Teardown       Close Browser
 
 
 *** Test Cases ***
-Scenario: Verify error message for duplicate provider account friendly name
+Scenario: Verify Error Message For Duplicate Provider Account Friendly Name
     [Tags]    smoke   RHOD-84-1
     When User Imports Valid CockroachDB Provider Account
     And User Navigates To Import Database Provider Account Screen From Database Access Page
     And User Enters Data To Import Duplicate CockroachDB Provider Account
-    Then An Error Message Appears For An Existing Provider Account Name
+    Then Duplicate Provider Account Name Error Message Appears
+
